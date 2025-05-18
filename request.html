@@ -105,7 +105,7 @@
 						<h3>Experience SikaTrust Firsthand</h3>
 						<p>Fill out this form to schedule a personalized demo of our digital Susu management platform.
 							We'll show you how SikaTrust can streamline your group savings and loan processes.</p>
-						<form name="demoRequest" id="demoRequestForm" novalidate>
+						<form name="demoRequest" id="demoRequestForm">
 							<div class="control-group form-group">
 								<div class="controls">
 									<label>Full Name*</label>
@@ -193,7 +193,7 @@
 								</div>
 							</div>
 							<div id="success"></div>
-							<button type="submit" class="btn btn-primary">Request Demo</button>
+							<button type="submit" id="submit-btn" class="btn btn-primary">Request Demo</button>
 						</form>
 					</div>
 
@@ -303,48 +303,60 @@
 	<!-- Contact form JavaScript -->
 	<script src="js/jqBootstrapValidation.js"></script>
 	<script src="js/contact_me.js"></script>
-	<script>
-		// Demo request form handling
-		$(function () {
-			$("#demoRequestForm").submit(function (event) {
-				event.preventDefault();
 
-				// Get form values
-				const formData = {
-					name: $("#name").val(),
-					phone: $("#phone").val(),
-					email: $("#email").val(),
-					organization: $("#organization").val(),
-					group_size: $("#groupSize").val(),
-					demo_method: $("input[name='demoMethod']:checked").val(),
-					preferred_time: $("#preferredTime").val(),
-					referral_source: $("#referralSource").val(),
-					interest: $("#interest").val(),
-					_token: $('meta[name="csrf-token"]').attr('content') // CSRF token
-				};
+<script>
+    // Demo request form handling
+    $(function () {
+        $("#demoRequestForm").submit(function (event) {
+            event.preventDefault();
+            const submitBtn = $("#submit-btn");
+            submitBtn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...').prop('disabled', true);
 
-				// Submit to Laravel
-				$.ajax({
-					type: "POST",
-					url: "/request-demo",
-					data: formData,
-					success: function (response) {
-						$("#success").html('<div class="alert alert-success mt-3">' + response.message + '</div>');
-						$("#demoRequestForm").trigger("reset");
-					},
-					error: function (xhr) {
-						let errors = xhr.responseJSON.errors;
-						let errorHtml = '<div class="alert alert-danger mt-3"><ul>';
-						$.each(errors, function (key, value) {
-							errorHtml += '<li>' + value + '</li>';
-						});
-						errorHtml += '</ul></div>';
-						$("#success").html(errorHtml);
-					}
-				});
-			});
-		});		
-	</script>
+            // Get form values
+            const formData = {
+                name: $("#name").val(),
+                phone: $("#phone").val(),
+                email: $("#email").val(),
+                organization: $("#organization").val(),
+                group_size: $("#groupSize").val(),
+                demo_method: $("input[name='demoMethod']:checked").val(),
+                preferred_time: $("#preferredTime").val(),
+                referral_source: $("#referralSource").val(),
+                interest: $("#interest").val(),
+                _token: $('meta[name="csrf-token"]').attr('content') // CSRF token
+            };
+
+            // Submit to sikatrust dashboard
+            const url = "https://dashboard.sikatrust.com";
+            $.ajax({
+                type: "POST",
+                url: url + "/api/request-demo/store",
+                headers: {
+                    'Accept': 'application/json',
+					'X-Requested-With': 'XMLHttpRequest',
+                },
+                data: formData,
+                success: function (response) {
+                    $("#success").html('<div class="alert alert-success mt-3">' + response.message + '</div>');
+                    $("#demoRequestForm").trigger("reset");
+                },
+                error: function (xhr) {
+                    let errors = xhr.responseJSON.errors;
+                    let errorHtml = '<div class="alert alert-danger mt-3"><ul>';
+                    $.each(errors, function (key, value) {
+                        errorHtml += '<li>' + value + '</li>';
+                    });
+                    errorHtml += '</ul></div>';
+                    $("#success").html(errorHtml);
+                },
+                complete: function() {
+                    // Re-enable button when request is complete
+                    submitBtn.text('Request Demo').prop('disabled', false);
+                }
+            });
+        });
+    });        
+</script>
 </body>
 
 </html>

@@ -105,13 +105,13 @@
 						</li>
 
 						<li class="nav-item">
-							<a class="nav-link" href="hire-us.html">Hire Us</a>
+							<a class="nav-link active"  href="hire-us.html">Hire Us</a>
 						</li>
 						<li class="nav-item">
 							<a class="nav-link" href="pricing.html">Pricing</a>
 						</li>
 						<li class="nav-item">
-							<a class="nav-link active" href="hire-us.html">Hire Us</a>
+							<a class="nav-link " href="request.html">Request Demo</a>
 						</li>
 						<li class="nav-item">
 							<a class="nav-link" href="contact.html">Contact</a>
@@ -227,7 +227,8 @@
 									<label for="message">Project Details*</label>
 									<textarea class="form-control" id="message" rows="4" required></textarea>
 								</div>
-								<button type="submit" class="btn btn-primary btn-block">Submit Request</button>
+								<button type="submit" id="submit-btn" class="btn btn-primary btn-block">Submit
+									Request</button>
 							</form>
 						</div>
 					</div>
@@ -349,6 +350,8 @@
 		$(function () {
 			$("#hireForm").submit(function (e) {
 				e.preventDefault();
+				const submitBtn = $("#submit-btn");
+				submitBtn.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...').prop('disabled', true);
 
 				// Get form values
 				const formData = {
@@ -356,15 +359,20 @@
 					company: $("#company").val(),
 					email: $("#email").val(),
 					phone: $("#phone").val(),
-					service: $("#service").val(),
+					service_type: $("#service").val(),
 					message: $("#message").val(),
 					_token: $('meta[name="csrf-token"]').attr('content') // CSRF token
 				};
 
 				// Submit to Laravel
+				const url = "https://dashboard.sikatrust.com";
 				$.ajax({
 					type: "POST",
-					url: "localhost:8000/hire-request",
+					url: url + "/api/hire-request/store",
+					headers: {
+						'Accept': 'application/json',
+						'X-Requested-With': 'XMLHttpRequest',
+					},
 					data: formData,
 					success: function (response) {
 						// Show success message
@@ -390,6 +398,10 @@
 							'<span aria-hidden="true">&times;</span></button></div>';
 
 						$("#hireForm").before(errorHtml);
+					},
+					complete: function () {
+						// Re-enable button when request is complete
+						submitBtn.text('Request Demo').prop('disabled', false);
 					}
 				});
 			});
