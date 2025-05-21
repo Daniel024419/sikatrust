@@ -1,5 +1,8 @@
 $(function() {
 
+  const url = "https://dashboard.sikatrust.com";
+  // const url = "http://localhost:8000";
+
   $("#contactForm input,#contactForm textarea").jqBootstrapValidation({
     preventSubmit: true,
     submitError: function($form, event, errors) {
@@ -20,7 +23,7 @@ $(function() {
       $this = $("#sendMessageButton");
       $this.prop("disabled", true); // Disable submit button until AJAX call is complete to prevent duplicate messages
       $.ajax({
-        url: "././mail/contact_me.php",
+        url: url + '/api/contact/store',
         type: "POST",
         data: {
           name: name,
